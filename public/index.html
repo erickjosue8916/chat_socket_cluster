@@ -6,66 +6,39 @@
     <link rel="icon" type="image/png" href="/favicon.ico">
     <script type="text/javascript" src="/socketcluster-client.js"></script>
     <style>
-      html {
-        height: 100%;
-      }
-      body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        color: #666666;
-        display: table;
-        font-weight: 100;
-        font-family: 'Roboto', Helvetica, sans-serif;
-      }
-      a {
-        font-weight: 300;
-        color: #72B963;
-      }
-      .container {
-        display: table-cell;
-        text-align: center;
-        vertical-align: middle;
-      }
-      .content {
-        text-align: center;
-        display: inline-block;
-      }
-      .title {
-        font-size: 96px;
-        margin-bottom: 10px;
-      }
-      .text {
-        font-size: 24px;
-        margin-bottom: 20px;
-      }
-      .small {
-        font-size: 18px;
-      }
-      .github-button {
-        padding-top: 10px;
-      }
+      
     </style>
   </head>
   <body>
     <div class="container">
-      <div class="content">
-        <div class="title">
-          SocketCluster
-        </div>
-        <div class="small">
-          <a href="https://socketcluster.io/docs/guides/">Guides</a> <strong>&middot;</strong>
-          <a href="https://socketcluster.io/docs/api/">API Docs</a>
-        </div>
-        <p class="github-button">
-          <iframe src="https://ghbtns.com/github-btn.html?user=socketcluster&repo=socketcluster&type=star&count=true&size=large" frameborder="0" scrolling="0" width="160px" height="30px"></iframe>
-        </p>
-      </div>
+      
+        <form id="form">
+          <input type="text" id="name" placeholder="ususario" required>
+          <input type="text" id="message" placeholder="escribe tu mensage">
+        </form>
+        <button onClick="sendMsg()">Hit Me</button>
+        <h1>mensajes del chat</h1>
+        <ul id="messages"></ul>
     </div>
     <script type="text/javascript">
       // Initiate the connection to the server
       let socket = socketClusterClient.create();
+      const name = document.getElementById("name")
+      const message = document.getElementById("message")
+      let btn = document.getElementById("btn")
+      function sendMsg() {
+        
+        name.setAttribute("disabled", true)
+        
+        const data = {name:name.value, message:message.value}
+        socket.emit("message", data)
+        socket.transmit("buttonEvent", message.value)
+        socket.transmitPublish("message", data)
+        message.value = ""
+      } 
+        
+
+
 
       (async () => {
         for await (let {error} of socket.listener('error')) {
@@ -75,9 +48,28 @@
 
       (async () => {
         for await (let event of socket.listener('connect')) {
+          
           console.log('Socket is connected');
         }
       })();
+
+      (async () => {
+        let channel = socket.subscribe("message");
+        for await (let data of channel) {
+          console.log(data)
+          const li = document.createElement("li")
+          document.getElementById("")
+          li.innerHTML = `${data.name} : ${data.message}`
+          document.getElementById("messages").appendChild(li)
+        }
+      })();
+      message.addEventListener("keyup", async () => {
+        let result = await socket.invoke('translateTest', message.value);
+        //document.getElementById("messages").innerHTML = result
+        console.log(result)
+        // result will be 'Success'
+      })
+
     </script>
   </body>
 </html>
