@@ -14,11 +14,4 @@ app.get("/", (req, res) => {
 const httpServer = http.createServer(app)
 let agServer = socketClusterServer.attach(httpServer);
 
-
-
-(async () => {
-  for await (let { socket } of agServer.listener("connection")) {
-    console.log("hay una conexion")
-  }
-})();
 httpServer.listen(port, () => console.log(`Server running on port ${port}`))
